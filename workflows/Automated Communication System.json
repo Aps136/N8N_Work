@@ -1,0 +1,113 @@
+{
+  "name": "Automated Communication System",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "event-registration",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -272,
+        -32
+      ],
+      "id": "d9510e16-ef2e-44c0-b12b-02581c1cbcb9",
+      "name": "Webhook",
+      "webhookId": "4a4d06c4-a9ef-4c99-9b0e-ebdcfcd3a3eb"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.body.Email }}",
+        "subject": "=Event Registration Confirmation -  {{ $json.body.EventName }}",
+        "emailType": "text",
+        "message": "=Hello {{ $json.body.Name }},  You have successfully registered for {{ $json.body.EventName }}.  Registration ID {{ $json.body.RegistrationID }}:  Event Date: {{ $json.body.EventDate }}.\nThank you,\nSmart Campus Team",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -64,
+        -32
+      ],
+      "id": "072de6d8-e132-4f5f-8b2c-cf7bdefda52d",
+      "name": "Send a message",
+      "webhookId": "8715ee1b-09dc-4877-9170-f97c2d1261ba",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "iHYPw3ONjF1hN3Pi",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6b28ab40-480c-42a3-90c2-fd0c49110d1d",
+              "name": "status",
+              "value": "confirmation_sent",
+              "type": "string"
+            },
+            {
+              "id": "300f3c3f-f78a-45a9-99d2-f7f43b585ee2",
+              "name": "RegistrationID",
+              "value": "={{ $('Webhook').item.json.body.RegistrationID }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        144,
+        -32
+      ],
+      "id": "e91a43e9-97b1-4e6b-96aa-cfb1d8d2f569",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "510ebc71-04cc-48f0-8a38-29eccb369ac8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b2fa2aad8a7880cf3e517b0059d14ae4181a50f58d3d02aab684ebeff23047ad"
+  },
+  "id": "s42wSaar40lw90l8",
+  "tags": []
+}

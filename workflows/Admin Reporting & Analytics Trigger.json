@@ -1,0 +1,265 @@
+{
+  "name": "Admin Reporting & Analytics Trigger",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "022ca023-749e-4b13-a447-b36c0c369ea8",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A",
+          "mode": "list",
+          "cachedResultName": "Assi_",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Registrations",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        0
+      ],
+      "id": "ce8b7471-1a34-4c16-a2da-030841ed400a",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "IqiR5HpSbBlSXBEL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A",
+          "mode": "list",
+          "cachedResultName": "Assi_",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1462910587,
+          "mode": "list",
+          "cachedResultName": "Feedback",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A/edit#gid=1462910587"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        144
+      ],
+      "id": "f2877a42-dab0-4266-ba69-eca307536166",
+      "name": "Get row(s) in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "IqiR5HpSbBlSXBEL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A",
+          "mode": "list",
+          "cachedResultName": "Assi_",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1221542203,
+          "mode": "list",
+          "cachedResultName": "Attendance",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A/edit#gid=1221542203"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        288
+      ],
+      "id": "571144ea-fe70-4146-a77f-a0f266e5cace",
+      "name": "Get row(s) in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "IqiR5HpSbBlSXBEL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        512,
+        16
+      ],
+      "id": "eab9a1e7-9133-48dc-acf5-b3c8983fdcb0",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "const allItems = $input.all();\n\n// Separate datasets\nconst registrations = [];\nconst feedback = [];\nconst attendance = [];\n\n// Identify which row belongs to which dataset\nfor (const item of allItems) {\n  const row = item.json;\n\n  // Registration rows have Name + Email\n  if (row.Name && row.Email) {\n    registrations.push(row);\n  }\n\n  // Feedback rows have FeedbackText\n  if (row.FeedbackText) {\n    feedback.push(row);\n  }\n\n  // Attendance rows have Attended (Yes/No)\n  if (row[\"Attended (Yes/No)\"]) {\n    attendance.push(row);\n  }\n}\n\n// === BASIC COUNTS ===\nconst totalRegistrations = registrations.length;\n\nconst totalAttendance = attendance.filter(\n  a => a[\"Attended (Yes/No)\"] === \"Yes\"\n).length;\n\nconst attendanceRate = totalRegistrations > 0\n  ? ((totalAttendance / totalRegistrations) * 100).toFixed(2)\n  : 0;\n\n// === SENTIMENT COUNTS ===\nconst positiveCount = feedback.filter(f => f.Sentiment === \"Positive\").length;\nconst negativeCount = feedback.filter(f => f.Sentiment === \"Negative\").length;\nconst neutralCount = feedback.filter(f => f.Sentiment === \"Neutral\").length;\n\n// === CATEGORY ANALYSIS ===\nconst categoryCounts = {};\nfor (const f of feedback) {\n  if (f.Category && f.Category !== \"empty\") {\n    categoryCounts[f.Category] = (categoryCounts[f.Category] || 0) + 1;\n  }\n}\n\nlet topCategory = \"None\";\nlet max = 0;\n\nfor (const cat in categoryCounts) {\n  if (categoryCounts[cat] > max) {\n    max = categoryCounts[cat];\n    topCategory = cat;\n  }\n}\n\nreturn [{\n  json: {\n    totalRegistrations,\n    totalAttendance,\n    attendanceRate,\n    totalFeedback: feedback.length,\n    positiveCount,\n    negativeCount,\n    neutralCount,\n    topCategory\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        16
+      ],
+      "id": "a0d91c20-a518-474e-a98e-b7009d15dba9",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "sendTo": "admin@gmail.com",
+        "subject": "Weekly Report",
+        "emailType": "text",
+        "message": "=Total Registrations: {{$json.totalRegistrations}}\nTotal Attendance: {{$json.totalAttendance}}\nAttendance Rate: {{$json.attendanceRate}}% \nTotal Feedback: {{$json.totalFeedback}} \nPositive: {{$json.positiveCount}}\nNeutral: {{$json.neutralCount}} \nNegative: {{$json.negativeCount}} \nTop Issue Category: {{$json.topCategory}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        928,
+        16
+      ],
+      "id": "228049ff-bf85-4366-80e9-4237df8e19e8",
+      "name": "Send a message",
+      "webhookId": "38468fbe-b89c-4820-9e00-d8bab4262805",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "iHYPw3ONjF1hN3Pi",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get row(s) in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "901c0fb1-44a6-4307-bfc3-7a82e187daec",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b2fa2aad8a7880cf3e517b0059d14ae4181a50f58d3d02aab684ebeff23047ad"
+  },
+  "id": "6xulznhnxKDSjLG0",
+  "tags": []
+}

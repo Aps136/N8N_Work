@@ -1,0 +1,872 @@
+{
+  "name": "Event Reminder Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -304,
+        16
+      ],
+      "id": "b658338a-5112-4d17-ab41-cc974e5a6398",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A",
+          "mode": "list",
+          "cachedResultName": "Assi_",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Registrations",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -112,
+        16
+      ],
+      "id": "d9f45079-ddfc-49b3-a51d-e29a0e598b7b",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "IqiR5HpSbBlSXBEL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b11e1979-d756-4031-98bd-0ab016a185ab",
+              "name": "=TomorrowDate",
+              "value": "={{$now.setZone(\"Asia/Kolkata\").plus({ days: 1 }).format(\"dd/MM/yyyy\")}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        32,
+        16
+      ],
+      "id": "9ceb97be-69af-4002-89e0-6f42dfca55fe",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d4e99c62-3a24-4c91-ac2c-10bcb5cf8743",
+              "leftValue": "={{ $('Get row(s) in sheet').item.json.EventDate }}",
+              "rightValue": "={{ $json.TomorrowDate }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        192,
+        16
+      ],
+      "id": "8281df82-251a-427f-9e8e-e030fba69783",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Get row(s) in sheet').item.json.Email }}",
+        "subject": "=Reminder:{{ $('Get row(s) in sheet').item.json.EventName }}  is Tomorrow 🎶",
+        "message": "=Hi {{ $('Get row(s) in sheet').item.json.Name }}, \nThis is a friendly reminder that you have registered for the following event: \nEvent Name:  {{ $('Get row(s) in sheet').item.json.Name }}\nEvent Date:{{ $('Get row(s) in sheet').item.json.EventDate }}\nRegistration ID: {{ $('Get row(s) in sheet').item.json.RegistrationID }} \nWe look forward to your participation!  If you have any questions, feel free to reply to this email.  See you there!  \nBest regards, \nEvent Team",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        400,
+        -80
+      ],
+      "id": "a75fd712-1db5-4fa7-9f66-ead04c048e15",
+      "name": "Send a message",
+      "webhookId": "b2fd35c1-df7e-4c71-9888-d6d48115b89c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "iHYPw3ONjF1hN3Pi",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A",
+          "mode": "list",
+          "cachedResultName": "Assi_",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Registrations",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Reminder24Sent": "Yes",
+            "RegistrationID": "={{ $('Get row(s) in sheet').item.json.RegistrationID }}",
+            "Name": "={{ $('Get row(s) in sheet').item.json.Name }}",
+            "Email": "={{ $('Get row(s) in sheet').item.json.Email }}",
+            "Phone": "={{ $('Get row(s) in sheet').item.json.Phone }}",
+            "EventName": "={{ $('Get row(s) in sheet').item.json.EventName }}",
+            "EventDate": "={{ $('Get row(s) in sheet').item.json.EventDate }}",
+            "Timestamp": "={{ $('Get row(s) in sheet').item.json.Timestamp }}"
+          },
+          "matchingColumns": [
+            "RegistrationID"
+          ],
+          "schema": [
+            {
+              "id": "RegistrationID",
+              "displayName": "RegistrationID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EventName",
+              "displayName": "EventName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EventDate",
+              "displayName": "EventDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reminder24Sent",
+              "displayName": "Reminder24Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        560,
+        -96
+      ],
+      "id": "1fe9ee17-d6ed-4e20-9f62-09e72759bd43",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "IqiR5HpSbBlSXBEL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0a6a2ee5-1c8e-4943-9897-59c3916ed85f",
+              "leftValue": "={{ new Date($json.EventDate.split(\"/\").reverse().join(\"-\")) }}\n",
+              "rightValue": "={{ $now.setZone(\"Asia/Kolkata\").startOf(\"day\") }}\n",
+              "operator": {
+                "type": "dateTime",
+                "operation": "before"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        752,
+        -64
+      ],
+      "id": "ee603232-94b6-4413-81c5-26174b20da13",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A",
+          "mode": "list",
+          "cachedResultName": "Assi_",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1221542203,
+          "mode": "list",
+          "cachedResultName": "Attendance",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A/edit#gid=1221542203"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        992,
+        -128
+      ],
+      "id": "d48e8cce-d859-44ec-b3df-655579a49d6b",
+      "name": "Get row(s) in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "IqiR5HpSbBlSXBEL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "bcaea08f-3f27-4165-a96f-13d94e147f9d",
+              "leftValue": "{{ Get row(s) in sheet1.attended(yes/no)}}",
+              "rightValue": "Yes",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1168,
+        -48
+      ],
+      "id": "b6a4ddf2-bcb0-4fa5-9239-3fca66ed3f14",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "s1fgF3CLrdD6ueWM",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/s1fgF3CLrdD6ueWM",
+          "cachedResultName": "Feedback Collection & AI Analysis"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1408,
+        -160
+      ],
+      "id": "e9158c00-6127-4158-8b32-195e01b825b5",
+      "name": "Execute Workflow"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Get row(s) in sheet').item.json.Email }}",
+        "subject": "=Reminder:{{ $('Get row(s) in sheet').item.json.EventName }}  is Tomorrow 🎶",
+        "message": "=Hi {{ $('Get row(s) in sheet').item.json.Name }}, \nThis is a friendly reminder that you have registered for the following event: \nEvent Name:  {{ $('Get row(s) in sheet').item.json.Name }}\nEvent Date:{{ $('Get row(s) in sheet').item.json.EventDate }}\nRegistration ID: {{ $('Get row(s) in sheet').item.json.RegistrationID }} \nWe look forward to your participation!  If you have any questions, feel free to reply to this email.  See you there!  \nBest regards, \nEvent Team",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        272,
+        272
+      ],
+      "id": "1376d101-3f46-4b49-a437-fc1bdf5dc057",
+      "name": "Send a message1",
+      "webhookId": "b2fd35c1-df7e-4c71-9888-d6d48115b89c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "iHYPw3ONjF1hN3Pi",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A",
+          "mode": "list",
+          "cachedResultName": "Assi_",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Registrations",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Reminder24Sent": "Yes",
+            "RegistrationID": "={{ $('Get row(s) in sheet').item.json.RegistrationID }}",
+            "Name": "={{ $('Get row(s) in sheet').item.json.Name }}",
+            "Email": "={{ $('Get row(s) in sheet').item.json.Email }}",
+            "Phone": "={{ $('Get row(s) in sheet').item.json.Phone }}",
+            "EventName": "={{ $('Get row(s) in sheet').item.json.EventName }}",
+            "EventDate": "={{ $('Get row(s) in sheet').item.json.EventDate }}",
+            "Timestamp": "={{ $('Get row(s) in sheet').item.json.Timestamp }}"
+          },
+          "matchingColumns": [
+            "RegistrationID"
+          ],
+          "schema": [
+            {
+              "id": "RegistrationID",
+              "displayName": "RegistrationID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EventName",
+              "displayName": "EventName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EventDate",
+              "displayName": "EventDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reminder24Sent",
+              "displayName": "Reminder24Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        432,
+        256
+      ],
+      "id": "08099305-9fc5-4a88-bf82-f4a769e0c7dd",
+      "name": "Update row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "IqiR5HpSbBlSXBEL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0a6a2ee5-1c8e-4943-9897-59c3916ed85f",
+              "leftValue": "={{ new Date($json.EventDate.split(\"/\").reverse().join(\"-\")) }}\n",
+              "rightValue": "={{ $now.setZone(\"Asia/Kolkata\").startOf(\"day\") }}\n",
+              "operator": {
+                "type": "dateTime",
+                "operation": "before"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        624,
+        288
+      ],
+      "id": "d333280d-d07e-4aba-be93-58199056c4db",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A",
+          "mode": "list",
+          "cachedResultName": "Assi_",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1221542203,
+          "mode": "list",
+          "cachedResultName": "Attendance",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A/edit#gid=1221542203"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        864,
+        224
+      ],
+      "id": "0d2079c7-0879-4cf3-acd5-8273ec7c86ff",
+      "name": "Get row(s) in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "IqiR5HpSbBlSXBEL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "bcaea08f-3f27-4165-a96f-13d94e147f9d",
+              "leftValue": "={{ $json['Attended (Yes/No)'] }}",
+              "rightValue": "Yes",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1040,
+        304
+      ],
+      "id": "4993ab8c-ed5d-46a8-9e57-4f84efe0e2ed",
+      "name": "If4"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://apps136.app.n8n.cloud/webhook-test/feedback-form",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "RegistrationID",
+              "value": "={{ $('Get row(s) in sheet2').item.json.RegistrationID }}"
+            },
+            {
+              "name": "email",
+              "value": "={{ $('Get row(s) in sheet').item.json.Email }}"
+            },
+            {
+              "name": "eventName",
+              "value": "={{ $('Get row(s) in sheet').item.json.EventName }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1328,
+        160
+      ],
+      "id": "1d38682d-8c7c-4644-af3e-ac4581d921d8",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet2": {
+      "main": [
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If4": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "55961ae8-7aa9-4b71-a20a-0961936948fb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b2fa2aad8a7880cf3e517b0059d14ae4181a50f58d3d02aab684ebeff23047ad"
+  },
+  "id": "Hp8bvtYYGUwqead8",
+  "tags": []
+}

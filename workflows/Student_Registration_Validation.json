@@ -1,0 +1,480 @@
+{
+  "name": "Student_Registration_Validation",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cf03891b-5a90-4642-b1cb-166499a5b243",
+              "leftValue": "={{ $json.Name }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "32d97a18-fb86-4e65-93f2-0fde8c1e18ee",
+              "leftValue": "={{ $json.Phone.length  }}",
+              "rightValue": 10,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -768,
+        192
+      ],
+      "id": "353cce73-c7b1-471c-8447-b78bfe50223c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A",
+          "mode": "list",
+          "cachedResultName": "Assi_",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Registrations",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "=Email",
+              "lookupValue": "={{ $json.Email }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -560,
+        80
+      ],
+      "id": "feabb2ad-093e-410c-807c-4c7b68637e51",
+      "name": "Get row(s) in sheet",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "IqiR5HpSbBlSXBEL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c0ab4544-fabc-4858-ae32-3027ef4f790b",
+              "leftValue": "={{ $items().length }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -416,
+        80
+      ],
+      "id": "1939244d-bc70-4469-8547-18dcebd9ae31",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9f62680e-37c4-4d6c-a5e1-020e9c55b450",
+              "name": "registrationID",
+              "value": "={{ \"REG-\" + Date.now() }}",
+              "type": "string"
+            },
+            {
+              "id": "234b5692-86ae-4432-a0cb-fb81df0311f8",
+              "name": "timestamp",
+              "value": "={{$now}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -224,
+        176
+      ],
+      "id": "cec6c42e-2bef-4006-b757-1d465a5438ae",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A",
+          "mode": "list",
+          "cachedResultName": "Assi_",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Registrations",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "RegistrationID": "={{ $json.registrationID }}",
+            "Email": "={{ $('On form submission').item.json.Email }}",
+            "Name": "={{ $('On form submission').item.json.Name }}",
+            "Phone": "={{ $('On form submission').item.json.Phone }}",
+            "EventDate": "={{ $('On form submission').item.json.EventDate }}",
+            "EventName": "={{ $('On form submission').item.json.EventName }}",
+            "Timestamp": "={{ $json.timestamp }}"
+          },
+          "matchingColumns": [
+            "RegistrationID"
+          ],
+          "schema": [
+            {
+              "id": "RegistrationID",
+              "displayName": "RegistrationID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EventName",
+              "displayName": "EventName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EventDate",
+              "displayName": "EventDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -64,
+        176
+      ],
+      "id": "1505c849-6250-40bf-9a61-30f3acde7b05",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "IqiR5HpSbBlSXBEL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "respondWith": "showText",
+        "responseText": "You are already registered with this email.\n"
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.5,
+      "position": [
+        -224,
+        16
+      ],
+      "id": "ca55d9f2-b4d7-490c-acac-91adfd909927",
+      "name": "Form",
+      "webhookId": "33a43b87-90cc-4630-90e3-731bd0d3581e"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "respondWith": "showText",
+        "responseText": "Invalid Data Entered"
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.5,
+      "position": [
+        -544,
+        240
+      ],
+      "id": "e1ac5a57-bed7-4704-bfd3-30fa876dfbe7",
+      "name": "Form1",
+      "webhookId": "33a43b87-90cc-4630-90e3-731bd0d3581e"
+    },
+    {
+      "parameters": {
+        "formTitle": "Details",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name"
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email"
+            },
+            {
+              "fieldLabel": "Phone"
+            },
+            {
+              "fieldLabel": "EventName"
+            },
+            {
+              "fieldLabel": "EventDate"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        -944,
+        192
+      ],
+      "id": "812df528-49c8-45cb-8e1e-128bdaec8a02",
+      "name": "On form submission",
+      "webhookId": "62a4a940-9344-4bad-a702-c152c46d12c7"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://apps136.app.n8n.cloud/webhook-test/event-registration",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "RegistrationID",
+              "value": "={{ $json.RegistrationID }}"
+            },
+            {
+              "name": "Email",
+              "value": "={{ $json.Email }}"
+            },
+            {
+              "name": "Name",
+              "value": "={{ $json.Name }}"
+            },
+            {
+              "name": "Phone",
+              "value": "={{ $json.Phone }}"
+            },
+            {
+              "name": "EventDate",
+              "value": "={{ $json.EventDate }}"
+            },
+            {
+              "name": "EventName",
+              "value": "={{ $json.EventName }}"
+            },
+            {
+              "name": "Timestamp",
+              "value": "={{ $json.Timestamp }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        128,
+        128
+      ],
+      "id": "8c04fe44-8f61-418d-a772-a8f25c5490e5",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Form1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Form",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "67022eac-baf1-40ca-bb21-9ffd9d9f13b1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b2fa2aad8a7880cf3e517b0059d14ae4181a50f58d3d02aab684ebeff23047ad"
+  },
+  "id": "g0IEyJBZ4NjfeogT",
+  "tags": []
+}

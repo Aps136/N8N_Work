@@ -1,0 +1,489 @@
+{
+  "name": "Feedback Collection & AI Analysis",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "feedback-form",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        272,
+        224
+      ],
+      "id": "213efbda-3bb9-4aa0-b47a-59bd79574449",
+      "name": "Webhook",
+      "webhookId": "d365cbbb-bb09-4874-92e0-e41dda565930"
+    },
+    {
+      "parameters": {
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name"
+            },
+            {
+              "fieldLabel": "EventName"
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email"
+            },
+            {
+              "fieldLabel": "Feedback",
+              "fieldType": "textarea"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.5,
+      "position": [
+        480,
+        352
+      ],
+      "id": "6e8817b8-d6e0-4fdf-b7c7-fee0ec14a45a",
+      "name": "Form",
+      "webhookId": "29822809-259a-4bcb-bb14-6d95417038f9"
+    },
+    {
+      "parameters": {
+        "formTitle": "Feedback Form",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name"
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email"
+            },
+            {
+              "fieldLabel": "EventName"
+            },
+            {
+              "fieldLabel": "Feedback",
+              "fieldType": "textarea"
+            },
+            {
+              "fieldLabel": "RegistrationID"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        256,
+        400
+      ],
+      "id": "e8a3263a-ce4e-4b3a-b0bc-47d6631362fd",
+      "name": "On form submission",
+      "webhookId": "c3fe279c-df91-43f2-989f-86ce081d18d4"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A",
+          "mode": "list",
+          "cachedResultName": "Assi_",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1462910587,
+          "mode": "list",
+          "cachedResultName": "Feedback",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A/edit#gid=1462910587"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "RegistrationID": "={{ $('On form submission').item.json.RegistrationID }}",
+            "FeedbackText": "={{ $json.Feedback }}",
+            "Timestamp": "={{ $('On form submission').item.json.submittedAt }}"
+          },
+          "matchingColumns": [
+            "RegistrationID"
+          ],
+          "schema": [
+            {
+              "id": "RegistrationID",
+              "displayName": "RegistrationID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "FeedbackText",
+              "displayName": "FeedbackText",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sentiment",
+              "displayName": "Sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        672,
+        352
+      ],
+      "id": "f2c12ad2-53e8-4bd9-aece-8ff92a1775e0",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "IqiR5HpSbBlSXBEL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Classify the feedback as Positive, Neutral, or Negative.\nAlso categorize it into one of:\n- Event Management\n- Speaker Quality\n- Technical Issues\n- Venue\n- Other\n\nRespond ONLY in JSON format like:\n{\n  \"sentiment\": \"\",\n  \"category\": \"\"\n}\n\nFeedback:\n{{ $json.FeedbackText }}\n"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        848,
+        336
+      ],
+      "id": "030a9b9b-5a61-4d73-82e5-8cff063acfcd",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "y0OrMao7pFvfPbGV",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get raw text\nlet raw = $input.first().json.content.parts[0].text\n\n// Remove markdown ```json and ```\nraw = raw.replace(/```json/g, '').replace(/```/g, '').trim();\n\n// Convert string to JSON object\nlet parsed = JSON.parse(raw);\n\nreturn [\n  {\n    json: {\n      sentiment: parsed.sentiment,\n      category: parsed.category\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1136,
+        320
+      ],
+      "id": "4ebc2c42-a48e-455a-a2b4-a9c11afd47ed",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "50cbe786-89a4-4f54-ae5c-05f420c7ed9b",
+              "leftValue": "={{ $json.sentiment }}",
+              "rightValue": "\"Negative\"",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1344,
+        320
+      ],
+      "id": "9692b8ed-2815-4afa-a489-efbb85f72f6c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "admin@gmail.com",
+        "subject": "Negative Feedback from participant ",
+        "emailType": "text",
+        "message": "=Obtained Negative feedback from  {{ $('Append or update row in sheet').item.json.RegistrationID }}\nFeedback: {{ $('Append or update row in sheet').item.json.FeedbackText }}\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1632,
+        240
+      ],
+      "id": "0821b2c8-0a3b-440d-ae65-ab9824aca196",
+      "name": "Send a message",
+      "webhookId": "7dd7bad9-e1fa-412e-bfdc-02ec47bc98bf",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "iHYPw3ONjF1hN3Pi",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A",
+          "mode": "list",
+          "cachedResultName": "Assi_",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1462910587,
+          "mode": "list",
+          "cachedResultName": "Feedback",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Z432KWn3SiBgsZRCcc0dTBMfZdoGRJXFrfBVvqhX81A/edit#gid=1462910587"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "RegistrationID": "={{ $('Append or update row in sheet').item.json.RegistrationID }}",
+            "FeedbackText": "={{ $('Append or update row in sheet').item.json.FeedbackText }}",
+            "Sentiment": "={{ $json.sentiment }}",
+            "Category": "={{ $json.category }}",
+            "Timestamp": "={{ $('Append or update row in sheet').item.json.Timestamp }}"
+          },
+          "matchingColumns": [
+            "RegistrationID"
+          ],
+          "schema": [
+            {
+              "id": "RegistrationID",
+              "displayName": "RegistrationID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "FeedbackText",
+              "displayName": "FeedbackText",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sentiment",
+              "displayName": "Sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1600,
+        400
+      ],
+      "id": "963d268f-c49e-4494-9896-f79ae50bef14",
+      "name": "Append or update row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "IqiR5HpSbBlSXBEL",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Form": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append or update row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "0c1387af-c8b8-4900-b04a-520c27ef8940",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b2fa2aad8a7880cf3e517b0059d14ae4181a50f58d3d02aab684ebeff23047ad"
+  },
+  "id": "s1fgF3CLrdD6ueWM",
+  "tags": []
+}

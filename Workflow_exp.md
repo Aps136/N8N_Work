@@ -18,7 +18,6 @@ This system is built using n8n and automates key campus operations such as stude
 **Trigger:** Internal Workflow Call  
 - Generates unique registration ID  
 - Sends confirmation email  
-- Sends SMS/WhatsApp notification  
 
 ---
 

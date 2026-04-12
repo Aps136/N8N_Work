@@ -20,7 +20,7 @@ All workflows are interconnected and use Webhooks, Cron jobs, Google Sheets, Ema
 - n8n
 - Google Sheets
 - Gmail SMTP
-- OpenAI API
+- Gemini API
 - Webhooks & Cron Jobs
 
 ---

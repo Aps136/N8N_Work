@@ -25,24 +25,6 @@ All workflows are interconnected and use Webhooks, Cron jobs, Google Sheets, Ema
 
 ---
 
-## Setup Instructions
-1. Install or access n8n.
-2. Import the provided workflow JSON files.
-3. Configure required credentials (Google Sheets, Gmail, OpenAI).
-4. Activate all workflows.
-5. Test the webhook for registration.
-
----
-
-## Deliverables Included
-- n8n Workflow JSON files  
-- Architecture Diagram  
-- Workflow Explanation Document  
-- Demo Video  
-- Screenshots of Outputs  
-
----
-
 ## Key Features
 - Event-driven automation  
 - AI-based sentiment analysis  
